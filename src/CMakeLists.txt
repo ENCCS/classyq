@@ -14,6 +14,8 @@ target_compile_features(classyq-objs
 target_compile_definitions(classyq-objs
   INTERFACE
     $<INSTALL_INTERFACE:USING_ClassyQ>
+    SPDLOG_FMT_EXTERNAL
+    H5_USE_EIGEN
   )
 
 if(WIN32)
@@ -46,6 +48,9 @@ target_include_directories(classyq-objs
 target_link_libraries(classyq-objs
   PUBLIC
     Eigen3::Eigen
+    fmt::fmt
+    HighFive
+    spdlog::spdlog
   )
 
 #add_subdirectory(...)

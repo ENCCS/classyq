@@ -55,5 +55,9 @@ include(${PROJECT_SOURCE_DIR}/cmake/downloaded/autocmake_safeguards.cmake)
 
 # download Eigen3 if not available on the system
 include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_eigen3.cmake)
+include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_fmt.cmake)
+include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_spdlog.cmake)
+include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_HighFive.cmake)
+
 include(${PROJECT_SOURCE_DIR}/cmake/custom/classyq.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/downloaded/autocmake_save_flags.cmake)
