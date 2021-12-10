@@ -54,3 +54,18 @@ target_link_libraries(classyq-objs
   )
 
 #add_subdirectory(...)
+
+add_executable(foo foo.cpp)
+
+target_compile_features(foo
+  PUBLIC
+    cxx_std_17
+  )
+
+target_link_libraries(foo
+  PUBLIC
+    Eigen3::Eigen
+    fmt::fmt
+    HighFive
+    spdlog::spdlog
+  )
