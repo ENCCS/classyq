@@ -5,7 +5,7 @@ dependencies:
   - catch2
   - cmake
   - cxx-compiler
-  - eigen
+  - eigen>=3.4
   - fmt
   - highfive
   - ninja
