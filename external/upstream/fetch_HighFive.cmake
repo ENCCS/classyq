@@ -1,5 +1,6 @@
 set(HighFive_pinned "2.3.1")
 
+enable_language(C)
 find_package(HighFive ${HighFive_pinned} CONFIG QUIET
   NO_CMAKE_PATH
   NO_CMAKE_PACKAGE_REGISTRY
