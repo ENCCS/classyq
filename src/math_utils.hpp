@@ -9,7 +9,7 @@
  * @param[in] r radius.
  * @return surface of the sphere \f$A = 4\pi r^{2}\f$.
  */
-inline constexpr auto surface_of_sphere(double r) -> double {
+inline auto surface_of_sphere(double r) -> double {
   return 4.0 * M_PI * std::pow(r, 2);
 }
 
@@ -24,7 +24,7 @@ inline constexpr auto surface_of_sphere(double r) -> double {
  * @note Leopardi uses the equivalent formula:
  * \f$ A = 4 \pi r^{2} \sin^{2}\left(\frac{\theta}{2}\right)\f$.
  */
-inline constexpr auto surface_of_cap(double theta, double r) -> double {
+inline auto surface_of_cap(double theta, double r) -> double {
   return 2.0 * M_PI * std::pow(r, 2) * (1 - std::cos(theta));
 }
 
@@ -61,7 +61,7 @@ inline auto spherical_to_cartesian(double theta, double phi, double R = 1.0,
  * For the derivation see:
  * https://en.wikipedia.org/wiki/Spherical_cap#Areas_of_intersecting_spheres
  */
-inline constexpr auto polar_angle_cap_of_intersection(double R, double r,
+inline auto polar_angle_cap_of_intersection(double R, double r,
                                                       double d) -> double {
   return (std::pow(R, 2) - std::pow(r, 2) + std::pow(d, 2)) / (2.0 * d * R);
 }
