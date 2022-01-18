@@ -1,0 +1,12 @@
+name: classyq-gha
+channels:
+  - conda-forge
+dependencies:
+  - catch2
+  - cmake
+  - cxx-compiler
+  - eigen
+  - fmt
+  - highfive
+  - ninja
+  - spdlog
