@@ -3,7 +3,6 @@ include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_catch2.cmake)
 
 add_executable(unit_tests
   main.cpp
-  add.cpp
   )
 
 target_link_libraries(unit_tests
@@ -11,6 +10,10 @@ target_link_libraries(unit_tests
     classyq-objs
     Catch2::Catch2
   )
+
+foreach(_dir IN ITEMS cavity)
+  add_subdirectory(${_dir})
+endforeach()
 
 # automatic discovery of unit tests
 list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/contrib)

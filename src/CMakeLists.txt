@@ -1,5 +1,5 @@
 # we compile everything as object files
-add_library(classyq-objs OBJECT example.cpp)
+add_library(classyq-objs OBJECT LeopardiPartition.cpp Sphere.cpp)
 
 set_target_properties(classyq-objs
   PROPERTIES
@@ -63,9 +63,6 @@ target_compile_features(foo
   )
 
 target_link_libraries(foo
-  PUBLIC
-    Eigen3::Eigen
-    fmt::fmt
-    HighFive
-    spdlog::spdlog
+  PRIVATE
+    classyq-objs
   )

@@ -12,7 +12,7 @@ else()
   include(FetchContent)
   FetchContent_Declare(Catch2
     QUIET
-    URL https://github.com/catchorg/Catch2/archive/v2.13.4.tar.gz
+    URL https://github.com/catchorg/Catch2/archive/v2.13.8.tar.gz
   )
 
   FetchContent_MakeAvailable(Catch2)
