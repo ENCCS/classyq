@@ -2,10 +2,6 @@
 
 #include <cmath>
 
-#include <fmt/ostream.h>
-#include <fmt/ranges.h>
-#include <spdlog/spdlog.h>
-
 #include <Eigen/Core>
 
 #include "LeopardiPartition.hpp"

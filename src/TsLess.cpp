@@ -2,6 +2,10 @@
 
 #include <vector>
 
+#include <fmt/ostream.h>
+#include <fmt/ranges.h>
+#include <spdlog/spdlog.h>
+
 #include <Eigen/Core>
 
 #include "Sphere.hpp"
@@ -30,6 +34,8 @@ auto neighbors_list(const std::vector<Sphere> &spheres) -> NeighborsList {
 TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
   // compute neighbors' list
   auto ns = neighbors_list(spheres);
+
+  SPDLOG_TRACE("neighbor list = {}", ns);
 
   std::vector<double> ws;
   std::vector<double> ps;
