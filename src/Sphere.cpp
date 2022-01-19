@@ -4,6 +4,7 @@
 
 #include <Eigen/Core>
 
+namespace classyq {
 Sphere::Sphere(double max_w, double r, Eigen::Vector3d c)
     : radius_(r), center_(c) {
   auto area = surface_of_sphere(radius_);
@@ -30,3 +31,4 @@ auto Sphere::switching(const Eigen::Vector3d &p, double rho) const -> double {
 
   return 0.5 * (1.0 + std::erf(x));
 }
+} // namespace classyq

@@ -4,6 +4,7 @@
 
 #include <Eigen/Core>
 
+namespace classyq {
 /** Compute EQ partitioning of the unit sphere.
  *
  * @param[in] N number of regions/points in the partition.
@@ -21,3 +22,4 @@
  */
 auto leopardi_partition(size_t N)
     -> std::tuple<Eigen::VectorXd, Eigen::VectorXd>;
+} // namespace classyq

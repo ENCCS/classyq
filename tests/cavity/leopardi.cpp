@@ -11,6 +11,8 @@
 
 #include "../utils.hpp"
 
+using namespace classyq;
+
 TEST_CASE("Leopardi partition with 256 points", "[cavity][leopardi]") {
   size_t N = 1 << 8;
   auto [thetas, phis] = leopardi_partition(N);

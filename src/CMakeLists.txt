@@ -1,5 +1,10 @@
 # we compile everything as object files
-add_library(classyq-objs OBJECT LeopardiPartition.cpp Sphere.cpp)
+add_library(classyq-objs
+  OBJECT
+    LeopardiPartition.cpp
+    Sphere.cpp
+    TsLess.cpp
+  )
 
 set_target_properties(classyq-objs
   PROPERTIES

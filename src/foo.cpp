@@ -11,6 +11,9 @@
 #include <spdlog/spdlog.h>
 
 #include "Sphere.hpp"
+#include "TsLess.hpp"
+
+using namespace classyq;
 
 int main() {
   spdlog::set_pattern("[%Y-%m-%d %T][%^%l%$][TID: %t, PID: %P][%!@%s:%4#] %v");
@@ -40,10 +43,10 @@ int main() {
 
   SPDLOG_INFO("surface of union {}", a1 - cap1 + a2 - cap2);
 
-  auto ws = combine({s1, s2});
+  auto tsless = TsLess({s1, s2});
 
-  SPDLOG_INFO("ws.size() {}", ws.size());
-  SPDLOG_INFO("ws.sum() {}", ws.sum());
+  SPDLOG_INFO("ws.size() {}", tsless.size());
+  SPDLOG_INFO("ws.sum() {}", tsless.area());
 
   return EXIT_SUCCESS;
 }

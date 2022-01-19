@@ -10,6 +10,7 @@
 
 #include <Eigen/Core>
 
+namespace classyq {
 auto leopardi_partition(size_t N)
     -> std::tuple<Eigen::VectorXd, Eigen::VectorXd> {
   // IDEAL area of each region
@@ -130,3 +131,4 @@ auto leopardi_partition(size_t N)
 
   return std::make_tuple(thetas, phis);
 }
+} // namespace classyq
