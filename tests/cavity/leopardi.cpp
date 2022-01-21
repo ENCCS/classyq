@@ -15,7 +15,7 @@ using namespace classyq;
 
 TEST_CASE("Leopardi partition with 256 points", "[cavity][leopardi]") {
   size_t N = 1 << 8;
-  auto [thetas, phis] = leopardi_partition(N);
+  auto [w_0, points] = leopardi_partition(N);
 
   // load reference data from Matlab implementation
   H5Easy::File file("cavity/leopardi.h5", H5Easy::File::ReadOnly);
@@ -26,9 +26,9 @@ TEST_CASE("Leopardi partition with 256 points", "[cavity][leopardi]") {
   auto ref_sph =
       H5Easy::load<Eigen::MatrixX2d>(file, "/leopardi/spherical/256");
 
-  REQUIRE(allclose(thetas, ref_sph.col(1)));
+  REQUIRE(allclose(points.row(0).transpose(), ref_sph.col(1)));
 
-  REQUIRE(allclose(phis, ref_sph.col(0)));
+  REQUIRE(allclose(points.row(1).transpose(), ref_sph.col(0)));
 
   // column 0: x
   // column 1: y
@@ -38,7 +38,7 @@ TEST_CASE("Leopardi partition with 256 points", "[cavity][leopardi]") {
 
   // perform spherical-to-Cartesian transformation
   for (auto i = 0; i < N; ++i) {
-    auto p = spherical_to_cartesian(thetas(i), phis(i));
+    auto p = spherical_to_cartesian(points(0, i), points(1, i));
     REQUIRE(allclose(p.transpose(), ref_cart.row(i)));
   }
 }

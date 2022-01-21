@@ -11,11 +11,10 @@
 #include <Eigen/Core>
 
 namespace classyq {
-auto leopardi_partition(size_t N)
-    -> std::tuple<Eigen::VectorXd, Eigen::VectorXd> {
+auto leopardi_partition(size_t N) -> std::tuple<double, Eigen::Matrix2Xd> {
   // IDEAL area of each region
   auto V_R = (4.0 * M_PI) / N;
-  SPDLOG_TRACE("ideal area of regions: V_R = {}", V_R);
+  SPDLOG_INFO("ideal area of regions: V_R = {}", V_R);
 
   // colatitude of the north pole spherical cap (spherical radius of spherical
   // cap of given area)
@@ -81,14 +80,12 @@ auto leopardi_partition(size_t N)
   }
   SPDLOG_TRACE("colatitudes of each zone: theta = {}", theta);
 
-  // result arrays with polar and azimuthal angles
-  Eigen::VectorXd thetas(n_regions), phis(n_regions);
+  // result array with polar (row 0) and azimuthal (row 1) angles
+  Eigen::Matrix2Xd points(2, n_regions);
   // north pole
-  thetas(0) = 0.0;
-  phis(0) = 0.0;
+  points.col(0) = Eigen::Vector2d::Zero();
   // south pole
-  thetas(n_regions - 1) = M_PI;
-  phis(n_regions - 1) = 0.0;
+  points.col(n_regions - 1) << M_PI, 0.0;
 
   // loop over collars, excluding north and south poles
   auto start = y[0];
@@ -103,7 +100,7 @@ auto leopardi_partition(size_t N)
     auto a_point = (a_top + a_bot) / 2.0;
 
     // all regions in this collar have the same polar angle
-    thetas(Eigen::seqN(start, n_regions)).setConstant(a_point);
+    points(0, Eigen::seqN(start, n_regions)).setConstant(a_point);
 
     // each region is a circle, which we can partition trivially
     auto inc = 2.0 * M_PI / n_regions;
@@ -112,7 +109,7 @@ auto leopardi_partition(size_t N)
       // azimuthal angles
       // we "twist" the azimuthal partition such that points in different
       // regions do not align.
-      phis(j + (start - 1)) = std::fmod(x + 2 * M_PI * offset, 2 * M_PI);
+      points(1, j + (start - 1)) = std::fmod(x + 2 * M_PI * offset, 2 * M_PI);
     }
     // update the azimuthal "twist", as follows:
     //  1. half the difference between a "twist" of one sector on each of bottom
@@ -129,6 +126,6 @@ auto leopardi_partition(size_t N)
     start += n_regions;
   }
 
-  return std::make_tuple(thetas, phis);
+  return std::make_tuple(V_R, points);
 }
 } // namespace classyq
