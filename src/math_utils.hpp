@@ -3,6 +3,8 @@
 #include <cmath>
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
 
 /** Surface area of a sphere.
  *
@@ -33,10 +35,11 @@ inline auto surface_of_cap(double theta, double r) -> double {
  * @param[in] theta polar angle of point.
  * @param[in] phi azimuthal angle of point.
  * @param[in] R radial distance of point.
- * @param[in] t translation vector.
+ * @param[in] c translation vector.
  */
-inline auto spherical_to_cartesian(double theta, double phi, double R = 1.0,
-                                   Eigen::Vector3d t = Eigen::Vector3d::Zero())
+inline auto
+spherical_to_cartesian(double theta, double phi, double R = 1.0,
+                       const Eigen::Vector3d &c = Eigen::Vector3d::Zero())
     -> Eigen::Vector3d {
   auto sin_theta = std::sin(theta);
   auto cos_theta = std::cos(theta);
@@ -45,7 +48,31 @@ inline auto spherical_to_cartesian(double theta, double phi, double R = 1.0,
 
   Eigen::Vector3d r(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta);
 
-  return (R * r + t);
+  return (R * r + c);
+}
+
+/** Spherical to Cartesian transformation.
+ *
+ * @param[in] sph (2 x N) matrix of spherical coordinates.
+ * @param[in] R radial distance of point.
+ * @param[in] c translation vector.
+ *
+ * See here: https://stackoverflow.com/a/51569396/2528668
+ */
+inline auto
+spherical_to_cartesian(const Eigen::Matrix2Xd &sph, double R = 1.0,
+                       const Eigen::Vector3d &c = Eigen::Vector3d::Zero())
+    -> Eigen::Matrix3Xd {
+  Eigen::Array2Xd cos = sph.array().cos();
+  Eigen::Array2Xd sin = sph.array().sin();
+
+  Eigen::Matrix3Xd car = Eigen::Matrix3Xd(3, sph.cols());
+  car << sin.row(0) * cos.row(1), sin.row(0) * sin.row(1), cos.row(0);
+
+  Eigen::Transform<double, 3, Eigen::Affine> T =
+      Eigen::Translation3d(c) * Eigen::Scaling(R);
+
+  return T * car;
 }
 
 /** Colatitude of the spherical cap resulting from the intersection of two
@@ -61,7 +88,7 @@ inline auto spherical_to_cartesian(double theta, double phi, double R = 1.0,
  * For the derivation see:
  * https://en.wikipedia.org/wiki/Spherical_cap#Areas_of_intersecting_spheres
  */
-inline auto polar_angle_cap_of_intersection(double R, double r,
-                                                      double d) -> double {
+inline auto polar_angle_cap_of_intersection(double R, double r, double d)
+    -> double {
   return (std::pow(R, 2) - std::pow(r, 2) + std::pow(d, 2)) / (2.0 * d * R);
 }
