@@ -14,10 +14,7 @@ namespace classyq {
  *
  * The EQ partition subdivides the unit sphere into N regions of equal area.
  * This is a re-implementation (from Matlab) of the algorithm first described by
- * Leopardi in:
- *
- * Leopardi, P. A Partition of the Unit Sphere into Regions of Equal Area and
- * Small Diameter. In Electronic Transactions on Numerical Analysis.
+ * Leopardi in \cite Leopardi2006-lh
  *
  * The original Matlab code is distributed under the MIT license.
  */
