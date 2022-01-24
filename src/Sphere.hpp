@@ -14,14 +14,71 @@ class Sphere final {
 private:
   /** Number of EQ points. */
   size_t N_{0};
-  /** Weight of EQ points. */
+
+  /** Weight of EQ points **for the unit sphere**.
+   *
+   * This is set to \f$ w_{0} = \frac{4\pi}{N} \f$, while the weight is \f$w =
+   * w_{0}R^{2}\f$. The former is used in the definition of the self-potential
+   * and self-field factors, while the latter is the weight used in the
+   * quadrature of the interlocking-sphere cavity.
+   */
   double w_0_;
+
   /** Radius. */
   double radius_;
+
   /** Center. */
   Eigen::Vector3d center_;
+
   /** EQ points, in Cartesian coordinates. */
   Eigen::Matrix3Xd points_;
+
+  /** Normal vectors at EQ points. */
+  Eigen::Matrix3Xd normals_;
+
+  /** Self-potential factors **for the unit sphere**.
+   *
+   * The formula is given by Scalmani and Frisch \cite Scalmani2010-tw
+   *
+   * We implement it in terms of the EQ partition, where the weights are the
+   * same for all points and there is no Gaussian smearing of the point charges:
+   *
+   * \f[
+   *   f_{i} = 4\pi -  w_{0}\sum_{j \neq i} \frac{1}{r_{ij}},
+   * \f]
+   *
+   * here \f$r_{ij} = |\mathbf{r}_{i} - \mathbf{r}_{j} |\f$ are the distances
+   * between EQ points on the unit sphere.
+   * The self-potential factors for the non-unit sphere are: \f$ f_{i}(R) =
+   * Rf_{i}\f$.
+   */
+  Eigen::VectorXd self_potentials_;
+
+  /** Self-field factors **for the unit sphere**.
+   *
+   * The formula is given by Scalmani and Frisch \cite Scalmani2010-tw It is
+   * derived from Gauss' theorem and was first published by Purisima and Nilar
+   * \cite Purisima1995-kc
+   *
+   * We implement it in terms of the EQ partition, where the weights are the
+   * same for all points and there is no Gaussian smearing of the point charges:
+   *
+   * \f[
+   *   g_{i}
+   *   =
+   *   - 2\pi
+   *   - w_{0}\sum_{j \neq i} \frac{(\mathbf{r}_i - \mathbf{r}_{j})\cdot
+   * \hat{\mathbf{n}}_{j}}{r^{3}_{ij}},
+   * \f]
+   *
+   * here \f$r_{ij} = |\mathbf{r}_{i} - \mathbf{r}_{j} |\f$ is the distance
+   * between EQ points \f$i\f$ and \f$j\f$ on the unit sphere, while
+   * \f$\hat{\mathbf{n}}_{i}\f$ is the normal vector at EQ point \f$i\f$. Since
+   * we are on the unit sphere at the origin, the EQ points **are** also the
+   * normal vectors. The self-field factors for the non-unit sphere are: \f$
+   * g_{i}(R) = g_{i}\f$.
+   */
+  Eigen::VectorXd self_fields_;
 
 public:
   /** Constructor from maximum quadrature weight.
@@ -68,9 +125,14 @@ public:
   auto size() const -> size_t { return N_; }
 
   /** Weight of EQ points. */
-  auto w_0() const -> double { return w_0_; }
+  auto weight() const -> double { return w_0_ * std::pow(radius_, 2); }
 
   /** EQ points. */
   auto points() const -> Eigen::Matrix3Xd { return points_; }
+
+  /** Normal vectors as EQ points. */
+  auto normals() const -> Eigen::Matrix3Xd { return normals_; }
+
+  auto fs() const -> Eigen::VectorXd { return radius_ * self_potentials_; }
 };
 } // namespace classyq
