@@ -134,5 +134,6 @@ public:
   auto normals() const -> Eigen::Matrix3Xd { return normals_; }
 
   auto fs() const -> Eigen::VectorXd { return radius_ * self_potentials_; }
+  auto fs(size_t i) const -> double { return radius_ * self_potentials_(i); }
 };
 } // namespace classyq

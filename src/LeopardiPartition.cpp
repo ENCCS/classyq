@@ -14,7 +14,7 @@ namespace classyq {
 auto leopardi_partition(size_t N) -> std::tuple<double, Eigen::Matrix2Xd> {
   // IDEAL area of each region
   auto V_R = (4.0 * M_PI) / N;
-  SPDLOG_INFO("ideal area of regions: V_R = {}", V_R);
+  SPDLOG_TRACE("ideal area of regions: V_R = {}", V_R);
 
   // colatitude of the north pole spherical cap (spherical radius of spherical
   // cap of given area)

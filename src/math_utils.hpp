@@ -3,7 +3,6 @@
 #include <cmath>
 
 #include <Eigen/Core>
-#include <Eigen/Dense>
 #include <Eigen/Geometry>
 
 /** Surface area of a sphere.
