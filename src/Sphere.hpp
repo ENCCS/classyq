@@ -33,9 +33,6 @@ private:
   /** EQ points, in Cartesian coordinates. */
   Eigen::Matrix3Xd points_;
 
-  /** Normal vectors at EQ points. */
-  Eigen::Matrix3Xd normals_;
-
   /** Self-potential factors **for the unit sphere**.
    *
    * The formula is given by Scalmani and Frisch \cite Scalmani2010-tw
@@ -129,9 +126,6 @@ public:
 
   /** EQ points. */
   auto points() const -> Eigen::Matrix3Xd { return points_; }
-
-  /** Normal vectors as EQ points. */
-  auto normals() const -> Eigen::Matrix3Xd { return normals_; }
 
   auto fs() const -> Eigen::VectorXd { return radius_ * self_potentials_; }
   auto fs(size_t i) const -> double { return radius_ * self_potentials_(i); }

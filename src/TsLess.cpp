@@ -39,8 +39,15 @@ TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
   std::vector<double> ps;
   std::vector<double> fs;
 
+  std::vector<double> radii;
+
   // loop on spheres
   for (auto I = 0; I < spheres.size(); ++I) {
+    // affine transformation from unit sphere
+    Eigen::Transform<double, 3, Eigen::Affine> T =
+        Eigen::Translation3d(spheres[I].center()) *
+        Eigen::Scaling(spheres[I].radius());
+
     // number of points on sphere I
     auto npoints_on_sphere = 0;
     // get EQ weight (same for all point on sphere I)
@@ -63,15 +70,22 @@ TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
         ps.push_back(p_I(1));
         ps.push_back(p_I(2));
         fs.push_back(spheres[I].fs(k));
+        auto n_I = (p_I - spheres[I].center()) / spheres[I].radius();
+        // TODO save radius of point
+        radii[k] = spheres[I].radius();
+        // TODO accumulate self-field factors
         npoints_on_sphere += 1;
       }
       k += 1;
     }
+    SPDLOG_INFO("npoints_on_sphere {}", npoints_on_sphere);
   }
 
   N_ = ws.size();
+  SPDLOG_INFO("N_ {}", N_);
   weights_ = Eigen::Map<Eigen::VectorXd>(ws.data(), ws.size());
   points_ = Eigen::Map<Eigen::Matrix3Xd>(ps.data(), 3, ps.size() / 3);
   self_potentials_ = Eigen::Map<Eigen::VectorXd>(fs.data(), fs.size());
+  // self_fields_ = Eigen::Map<Eigen::VectorXd>(gs.data(), gs.size());
 }
 } // namespace classyq
