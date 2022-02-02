@@ -5,8 +5,9 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-namespace classyq {
+#include "LeopardiPartition.hpp"
 
+namespace classyq {
 Sphere::Sphere(double max_w, double r, Eigen::Vector3d c)
     : radius_(r), center_(c) {
   auto area = surface_of_sphere(radius_);
@@ -21,7 +22,7 @@ Sphere::Sphere(double max_w, double r, Eigen::Vector3d c)
 
   // compute normal vectors at the EQ points by transforming EQ points from
   // spherical to Cartesian coordinates on the unit sphere
-  auto normals = spherical_to_cartesian(points_sph);
+  points_ = spherical_to_cartesian(points_sph);
 
   // compute the self-factors from the EQ points on the unit sphere
   self_potentials_ = Eigen::VectorXd(N_).setConstant(4.0 * M_PI);
@@ -29,9 +30,9 @@ Sphere::Sphere(double max_w, double r, Eigen::Vector3d c)
 
   // compute self-potential and self-field factors for the unit sphere
   for (auto i = 0; i < N_; ++i) {
-    auto p_i = normals.col(i);
+    auto p_i = points_.col(i);
     for (auto j = 0; j < N_; ++j) {
-      auto p_j = normals.col(j);
+      auto p_j = points_.col(j);
       if (i != j) {
         auto dist = (p_i - p_j).norm();
         self_potentials_(i) -= w_0_ / dist;
@@ -39,12 +40,6 @@ Sphere::Sphere(double max_w, double r, Eigen::Vector3d c)
       }
     }
   }
-
-  // from the normal vectors at EQ points (EQ points on the unit sphere)
-  // we compute EQ points for this sphere as an affine transformation
-  Eigen::Transform<double, 3, Eigen::Affine> T =
-      Eigen::Translation3d(center_) * Eigen::Scaling(radius_);
-  points_ = T * normals;
 }
 
 auto Sphere::switching(const Eigen::Vector3d &p, double rho) const -> double {

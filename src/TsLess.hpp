@@ -1,6 +1,8 @@
 #pragma once
 
 #include <numeric>
+#include <tuple>
+#include <vector>
 
 #include <Eigen/Core>
 
@@ -24,9 +26,14 @@ class TsLess final {
 private:
   size_t N_{0};
   Eigen::VectorXd weights_;
+  Eigen::Matrix3Xd normals_;
   Eigen::Matrix3Xd points_;
   Eigen::VectorXd self_potentials_;
   Eigen::VectorXd self_fields_;
+
+  std::vector<size_t> points_per_sphere_;
+  std::vector<double> weights_0_;
+  std::vector<double> radii_;
 
 public:
   TsLess(const std::vector<Sphere> &ss,
@@ -39,10 +46,14 @@ public:
   auto points() const -> Eigen::Matrix3Xd { return points_; }
   auto points(size_t i) const -> Eigen::Vector3d { return points_.col(i); }
 
+  auto normals() const -> Eigen::Matrix3Xd { return normals_; }
+  auto normals(size_t i) const -> Eigen::Vector3d { return normals_.col(i); }
+
   auto area() const -> double { return weights_.sum(); }
 
   auto fs() const -> Eigen::VectorXd { return self_potentials_; }
   auto gs() const -> Eigen::VectorXd { return self_fields_; }
+  auto self_factors() const -> std::tuple<Eigen::VectorXd, Eigen::VectorXd>;
 
   /**
    * @{ Iterators

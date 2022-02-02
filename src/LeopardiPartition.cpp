@@ -126,6 +126,6 @@ auto leopardi_partition(size_t N) -> std::tuple<double, Eigen::Matrix2Xd> {
     start += n_regions;
   }
 
-  return std::make_tuple(V_R, points);
+  return {V_R, points};
 }
 } // namespace classyq

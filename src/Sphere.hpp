@@ -30,7 +30,11 @@ private:
   /** Center. */
   Eigen::Vector3d center_;
 
-  /** EQ points, in Cartesian coordinates. */
+  /** EQ points, in Cartesian coordinates, **for the unit sphere**.
+   *
+   * @note these are equivalent to the normal vectors at the points on the
+   * non-unit sphere.
+   */
   Eigen::Matrix3Xd points_;
 
   /** Self-potential factors **for the unit sphere**.
@@ -124,10 +128,15 @@ public:
   /** Weight of EQ points. */
   auto weight() const -> double { return w_0_ * std::pow(radius_, 2); }
 
+  /** Weight of EQ points **on the unit sphere** */
+  auto weight0() const -> double { return w_0_; }
+
   /** EQ points. */
   auto points() const -> Eigen::Matrix3Xd { return points_; }
 
   auto fs() const -> Eigen::VectorXd { return radius_ * self_potentials_; }
   auto fs(size_t i) const -> double { return radius_ * self_potentials_(i); }
+  auto gs() const -> Eigen::VectorXd { return self_fields_; }
+  auto gs(size_t i) const -> double { return self_fields_(i); }
 };
 } // namespace classyq

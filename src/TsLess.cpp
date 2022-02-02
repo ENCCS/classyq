@@ -1,5 +1,6 @@
 #include "TsLess.hpp"
 
+#include <tuple>
 #include <vector>
 
 #include <fmt/ostream.h>
@@ -33,13 +34,13 @@ auto neighbors_list(const std::vector<Sphere> &spheres) -> NeighborsList {
 
 TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
   // compute neighbors' list
-  auto ns = neighbors_list(spheres);
+  auto neighbors = neighbors_list(spheres);
 
   std::vector<double> ws;
   std::vector<double> ps;
   std::vector<double> fs;
-
-  std::vector<double> radii;
+  std::vector<double> gs;
+  std::vector<double> ns;
 
   // loop on spheres
   for (auto I = 0; I < spheres.size(); ++I) {
@@ -49,16 +50,21 @@ TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
         Eigen::Scaling(spheres[I].radius());
 
     // number of points on sphere I
-    auto npoints_on_sphere = 0;
+    auto n_on_sphere = 0;
     // get EQ weight (same for all point on sphere I)
     auto w = spheres[I].weight();
+    weights_0_.push_back(spheres[I].weight0());
+    radii_.push_back(spheres[I].radius());
     auto rho = std::sqrt(w / M_PI);
+    // normal vectors
+    const auto ns_I = spheres[I].points();
     // loop on sampling points on current sphere
-    const auto ps_I = spheres[I].points();
     auto k = 0;
-    for (const auto &p_I : ps_I.colwise()) {
+    for (const auto &n_I : ns_I.colwise()) {
+      // affine transformation
+      auto p_I = T * n_I;
       auto w_I = w;
-      for (const auto J : ns[I]) {
+      for (const auto J : neighbors[I]) {
         w_I *= spheres[J].switching(p_I, rho);
       }
       // accumulate points and per-sphere statistics (e.g. exposed area, number
@@ -70,22 +76,25 @@ TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
         ps.push_back(p_I(1));
         ps.push_back(p_I(2));
         fs.push_back(spheres[I].fs(k));
-        auto n_I = (p_I - spheres[I].center()) / spheres[I].radius();
-        // TODO save radius of point
-        radii[k] = spheres[I].radius();
-        // TODO accumulate self-field factors
-        npoints_on_sphere += 1;
+        gs.push_back(spheres[I].gs(k));
+        // push back x, y, z of normal vectors at point
+        ns.push_back(n_I(0));
+        ns.push_back(n_I(1));
+        ns.push_back(n_I(2));
+        n_on_sphere += 1;
       }
       k += 1;
     }
-    SPDLOG_INFO("npoints_on_sphere {}", npoints_on_sphere);
+    points_per_sphere_.push_back(n_on_sphere);
   }
 
   N_ = ws.size();
-  SPDLOG_INFO("N_ {}", N_);
   weights_ = Eigen::Map<Eigen::VectorXd>(ws.data(), ws.size());
   points_ = Eigen::Map<Eigen::Matrix3Xd>(ps.data(), 3, ps.size() / 3);
   self_potentials_ = Eigen::Map<Eigen::VectorXd>(fs.data(), fs.size());
-  // self_fields_ = Eigen::Map<Eigen::VectorXd>(gs.data(), gs.size());
+  self_fields_ = Eigen::Map<Eigen::VectorXd>(gs.data(), gs.size());
+  normals_ = Eigen::Map<Eigen::Matrix3Xd>(ns.data(), 3, ns.size() / 3);
+
+  SPDLOG_INFO("npoints_on_sphere_ {}", npoints_on_sphere_);
 }
 } // namespace classyq
