@@ -12,7 +12,7 @@ else()
   FetchContent_Declare(fmt
     QUIET
     URL
-      https://github.com/fmtlib/fmt/archive/8.0.1.zip
+      https://github.com/fmtlib/fmt/archive/8.1.1.zip
     )
 
   FetchContent_MakeAvailable(fmt)
