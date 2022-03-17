@@ -1,5 +1,5 @@
-# download Catch2 if not available on the system
-include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_catch2.cmake)
+# download doctest if not available on the system
+include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_doctest.cmake)
 
 add_executable(unit_tests
   main.cpp
@@ -8,7 +8,7 @@ add_executable(unit_tests
 target_link_libraries(unit_tests
   PRIVATE
     classyq-objs
-    Catch2::Catch2
+    doctest::doctest
   )
 
 foreach(_dir IN ITEMS cavity)
@@ -16,9 +16,8 @@ foreach(_dir IN ITEMS cavity)
 endforeach()
 
 # automatic discovery of unit tests
-list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/contrib)
-include(Catch)
-catch_discover_tests(unit_tests
+include(doctest)
+doctest_discover_tests(unit_tests
   PROPERTIES
     LABELS "unit"
   )

@@ -35,6 +35,7 @@
             clang-analyzer
             clang-tools
             cmake
+            doctest
             eigen
             fmt_8
             hdf5
@@ -48,6 +49,8 @@
             lldb
             valgrind
           ];
+
+          hardeningDisable = [ "all" ];
 
           NINJA_STATUS = "[Built edge %f of %t in %e sec] ";
         };

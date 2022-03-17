@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <doctest/doctest.h>
 
 #include <Eigen/Core>
 #include <fmt/ostream.h>
@@ -13,7 +13,7 @@
 
 using namespace classyq;
 
-TEST_CASE("Leopardi partition with 256 points", "[cavity][leopardi]") {
+TEST_CASE("Leopardi partition with 256 points") {
   size_t N = 1 << 8;
   auto [w_0, points] = leopardi_partition(N);
 

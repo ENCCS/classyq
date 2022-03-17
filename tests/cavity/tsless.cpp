@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <doctest/doctest.h>
 
 #include <Eigen/Core>
 #include <fmt/ostream.h>
@@ -12,9 +12,9 @@
 #include "../utils.hpp"
 
 using namespace classyq;
+using namespace doctest;
 
-TEST_CASE("TsLess partition of two interlocking spheres",
-          "[cavity][tsless][two_spheres]") {
+TEST_CASE("TsLess partition of two interlocking spheres") {
   auto max_w = 0.1;
   auto d = 2.5;
 
@@ -44,8 +44,7 @@ TEST_CASE("TsLess partition of two interlocking spheres",
   REQUIRE(area == Approx(ref_area).epsilon(max_w));
 }
 
-TEST_CASE("TsLess partition of three interlocking spheres",
-          "[cavity][tsless][three_spheres]") {
+TEST_CASE("TsLess partition of three interlocking spheres") {
   // three spheres in an isosceles triangle configuration
   auto max_w = 0.1;
   // distance between centers of the interlocking spheres
@@ -99,8 +98,7 @@ TEST_CASE("TsLess partition of three interlocking spheres",
   REQUIRE(area == Approx(ref_area).epsilon(max_w));
 }
 
-TEST_CASE("TsLess partition of four interlocking spheres",
-          "[cavity][tsless][four_spheres]") {
+TEST_CASE("TsLess partition of four interlocking spheres") {
   // four spheres: as above (isosceles triangle configuration) plus one sphere
   // along the z axis
   auto max_w = 0.1;
@@ -163,7 +161,7 @@ TEST_CASE("TsLess partition of four interlocking spheres",
                   (cap1_2 + cap1_3 + cap1_4 + cap2_1 + cap3_1 + cap4_1);
   fmt::print("ref_area = {}\n", ref_area);
 
-  auto tsless = TsLess({s1, s2, s3, s4});
+  auto tsless = TsLess({s1, s2, s3, s4}, 1.0e-13);
 
   auto area = tsless.area();
   fmt::print("area = {}\n", area);
