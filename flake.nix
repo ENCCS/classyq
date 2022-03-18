@@ -23,8 +23,6 @@
           requirements = ''
             jupyterlab
             numpy
-            jax
-            jaxlib
           '';
         };
       in
@@ -46,6 +44,8 @@
           ];
           buildInputs = with pkgs; [
             pythonEnv
+            pythonEnv.pkgs.jax
+            pythonEnv.pkgs.jaxlib
             lldb
             valgrind
           ];
