@@ -2,19 +2,20 @@
 
 #include <cmath>
 #include <type_traits>
+#include <vector>
 
+#include "autodiff/forward/dual.hpp"
+#include "autodiff/forward/dual/eigen.hpp"
 #include <Eigen/Core>
-#include <autodiff/forward/dual.hpp>
-#include <autodiff/forward/dual/eigen.hpp>
 
 #include "LeopardiPartition.hpp"
-#include "math_utils.hpp"
+#include "utils/math_utils.hpp"
 
 namespace classyq {
 /**
  */
 class Sphere final {
-private:
+  private:
   /** Number of EQ points. */
   size_t N_{0};
 
@@ -84,7 +85,7 @@ private:
    */
   Eigen::VectorXd self_fields_;
 
-public:
+  public:
   /** Constructor from maximum quadrature weight.
    *
    * @param[in] max_w maximum quadrature weight (inverse of the density of
@@ -118,8 +119,7 @@ public:
    * = |\mathbf{p} - \mathbf{r}_{\alpha}| - R_{\alpha}\f$ and the *interaction
    * radius* \f$\rho\f$. The latter is a function of the given evaluation point.
    */
-  template <typename T = double>
-  auto switching(const Eigen::Vector<T, 3> &p, double rho) const -> T {
+  template <typename T = double> auto switching(const Eigen::Vector<T, 3> &p, double rho) const -> T {
     // signed normal distance
     T s = (p - center_).norm() - radius_;
     // penetration distance
@@ -155,4 +155,8 @@ public:
   auto gs() const -> Eigen::VectorXd { return self_fields_; }
   auto gs(size_t i) const -> double { return self_fields_(i); }
 };
+
+using NeighborsList = std::vector<std::vector<size_t>>;
+
+auto neighbors_list(const std::vector<Sphere> &spheres) -> NeighborsList;
 } // namespace classyq

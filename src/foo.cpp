@@ -17,9 +17,9 @@
 #include <autodiff/forward/real.hpp>
 #include <autodiff/forward/real/eigen.hpp>
 
-#include "LeopardiPartition.hpp"
-#include "Sphere.hpp"
-#include "TsLess.hpp"
+#include "cavity/LeopardiPartition.hpp"
+#include "cavity/Sphere.hpp"
+#include "cavity/TsLess.hpp"
 #include "utils/FiniteDifference.hpp"
 
 using namespace autodiff;
@@ -160,20 +160,6 @@ int main() {
 
   SPDLOG_INFO("equal? {}", tsk == tsless.weights());
 
-  // let's try autodiff now
-  VectorXdual Rs_d(2);
-  Rs_d << 1.0, 1.5;
-
-  Vector3dual c1_d(0.0, 0.0, 0.0), c2_d(0.0, 0.0, d);
-  Matrix3Xdual cs_d(3, 2);
-  cs_d.col(0) = c1_d;
-  cs_d.col(1) = c2_d;
-
-  VectorXdual u;
-  Eigen::VectorXd gr1 =
-      gradient(generate<dual>, wrt(cs_d), at(Rs_d, cs_d, max_w), u);
-  // done with autodiff
-
   // compute S, we enforce Hermiticity
   auto S = Smatrix(tsless);
 
@@ -203,18 +189,6 @@ int main() {
   gauss = q.sum();
   SPDLOG_INFO("<< IEFPCM >>\ntotalASC = {}; gauss = {}; Delta = {}", totalASC,
               gauss, totalASC - gauss);
-
-  Vector3dual r_i(0, 0, -1), r_j(0, 0, 1);
-
-  Vector3dual
-      F; // the output scalar u = f(x) evaluated together with gradient below
-
-  Eigen::MatrixXd J = jacobian(
-      f, wrt(r_j), at(r_i, r_j),
-      F); // evaluate the function value u and its gradient vector g = du/dx
-
-  SPDLOG_INFO("F = {}", F);
-  SPDLOG_INFO("J =\n{}", J);
 
   finite_difference();
 

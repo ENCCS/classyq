@@ -60,16 +60,16 @@ int main() {
 
   Eigen::Vector<T, 3> D(1.0, 0.0, -M_PI);
 
-  auto [f, dfdx] = derivatives(foo<T>, wrt(D), at(D));
-  SPDLOG_INFO("f {}", f);
-  SPDLOG_INFO("dfdx {}", dfdx);
+  //auto [f, dfdx] = derivatives(foo<T>, wrt(D), at(D));
+  //SPDLOG_INFO("f {}", f);
+  //SPDLOG_INFO("dfdx {}", dfdx);
 
   //auto [g, dfdxs] = derivatives(generate3<T>, wrt(xs), at(C, xs));
   //SPDLOG_INFO("dfdxs {}", dfdxs);
-  //Eigen::MatrixXd Z = jacobian(generate3<T>, wrt(xs), at(C, xs));
 
-  // SPDLOG_INFO("Z of dimension {}x{}", Z.rows(), Z.cols());
-  // SPDLOG_INFO("Z\n{}", Z);
+  Eigen::MatrixXd Z = jacobian(generate3<T>, wrt(xs), at(C, xs));
+  SPDLOG_INFO("Z of dimension {}x{}", Z.rows(), Z.cols());
+  SPDLOG_INFO("Z\n{}", Z);
 
   return EXIT_SUCCESS;
 }

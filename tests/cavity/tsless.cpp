@@ -5,9 +5,9 @@
 #include <fmt/ranges.h>
 #include <highfive/H5Easy.hpp>
 
-#include "Sphere.hpp"
-#include "TsLess.hpp"
-#include "math_utils.hpp"
+#include "cavity/Sphere.hpp"
+#include "cavity/TsLess.hpp"
+#include "utils/math_utils.hpp"
 
 #include "../utils.hpp"
 

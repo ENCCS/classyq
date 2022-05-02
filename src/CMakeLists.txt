@@ -1,10 +1,5 @@
 # we compile everything as object files
-add_library(classyq-objs
-  OBJECT
-    LeopardiPartition.cpp
-    Sphere.cpp
-    TsLess.cpp
-  )
+add_library(classyq-objs OBJECT)
 
 set_target_properties(classyq-objs
   PROPERTIES
@@ -33,22 +28,21 @@ if(WIN32)
 endif()
 
 target_include_directories(classyq-objs
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  )
-
-target_include_directories(classyq-objs
   PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR}
   INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR}/ClassyQ>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/ClassyQ>
   )
+
+foreach(_dir IN ITEMS cavity utils)
+  add_subdirectory(${_dir})
+endforeach()
 
 target_link_libraries(classyq-objs
   PUBLIC
@@ -59,15 +53,8 @@ target_link_libraries(classyq-objs
     autodiff::autodiff
   )
 
-#add_subdirectory(utils)
-
-foreach(exe IN ITEMS foo dervs)
+foreach(exe IN ITEMS foo)
 add_executable(${exe} ${exe}.cpp)
-
-target_compile_features(${exe}
-  PUBLIC
-    cxx_std_17
-  )
 
 target_link_libraries(${exe}
   PRIVATE

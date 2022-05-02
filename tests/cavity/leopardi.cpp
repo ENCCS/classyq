@@ -6,8 +6,8 @@
 #include <highfive/H5Easy.hpp>
 #include <spdlog/spdlog.h>
 
-#include "LeopardiPartition.hpp"
-#include "math_utils.hpp"
+#include "cavity/LeopardiPartition.hpp"
+#include "utils/math_utils.hpp"
 
 #include "../utils.hpp"
 

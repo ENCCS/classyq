@@ -4,8 +4,8 @@
 #include <vector>
 
 #include <Eigen/Core>
-#include <autodiff/forward/dual.hpp>
-#include <autodiff/forward/dual/eigen.hpp>
+#include "autodiff/forward/dual.hpp"
+#include "autodiff/forward/dual/eigen.hpp"
 #include <fmt/ostream.h>
 #include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
@@ -13,26 +13,6 @@
 #include "Sphere.hpp"
 
 namespace classyq {
-auto neighbors_list(const std::vector<Sphere> &spheres) -> NeighborsList {
-  auto ns = NeighborsList(spheres.size());
-
-  for (auto I = 0; I < spheres.size(); ++I) {
-    auto cI = spheres[I].center();
-    auto rI = spheres[I].radius();
-    for (auto J = 0; J < spheres.size(); ++J) {
-      if (I != J) {
-        auto d = (cI - spheres[J].center()).norm();
-        auto r = rI + spheres[J].radius();
-        if (d <= r) {
-          ns[I].push_back(J);
-        }
-      }
-    }
-  }
-
-  return ns;
-}
-
 TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
   // compute neighbors' list
   auto neighbors = neighbors_list(spheres);

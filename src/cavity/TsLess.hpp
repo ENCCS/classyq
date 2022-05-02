@@ -10,10 +10,6 @@
 #include "Sphere.hpp"
 
 namespace classyq {
-using NeighborsList = std::vector<std::vector<size_t>>;
-
-auto neighbors_list(const std::vector<Sphere> &spheres) -> NeighborsList;
-
 /**
  *
  * This is a modified implementation of the cavity partition first described in
@@ -29,10 +25,18 @@ auto neighbors_list(const std::vector<Sphere> &spheres) -> NeighborsList;
  */
 class TsLess final {
 private:
+  /** Total number of quadrature points. */
   size_t N_{0};
+
+  /** Weight of quadrature points. */
   Eigen::VectorXd weights_;
-  Eigen::Matrix3Xd normals_;
+
+  /** Quadrature points. */
   Eigen::Matrix3Xd points_;
+
+  /** Normal vectors at quadrature points. */
+  Eigen::Matrix3Xd normals_;
+
   Eigen::VectorXd self_potentials_;
   Eigen::VectorXd self_fields_;
 
@@ -49,44 +53,47 @@ public:
   auto weights() const -> Eigen::VectorXd { return weights_; }
 
   auto points() const -> Eigen::Matrix3Xd { return points_; }
+
   auto points(size_t i) const -> Eigen::Vector3d { return points_.col(i); }
 
   auto normals() const -> Eigen::Matrix3Xd { return normals_; }
+
   auto normals(size_t i) const -> Eigen::Vector3d { return normals_.col(i); }
 
   auto area() const -> double { return weights_.sum(); }
 
   auto fs() const -> Eigen::VectorXd { return self_potentials_; }
+
   auto gs() const -> Eigen::VectorXd { return self_fields_; }
+
   auto self_factors() const -> std::tuple<Eigen::VectorXd, Eigen::VectorXd>;
 
-  /**
-   * @{ Iterators
-   */
+  /** @{ Iterators */
   /**@}*/
 };
 
-template <typename T>
+template<typename T>
 auto neighbors(T R0, const Eigen::Vector<T, 3> &c0, T R1,
                const Eigen::Vector<T, 3> &c1) -> bool {
   return ((c1 - c0).norm() <= R0 + R1);
 }
 
-template <typename T> auto switching(T x) -> T {
-  if constexpr (std::is_same_v<T, double>) {
+template<typename T = double>
+auto switching(T x) -> T {
+  if constexpr (std::is_floating_point_v<T>) {
     return 0.5 * (1.0 + std::erf(x));
   } else {
     return 0.5 * (1.0 + erf(x));
   }
 }
 
-template <typename T>
+template<typename T = double>
 // auto generate(const std::vector<T> &Rs,
 //               const std::vector<Eigen::Vector<T, 3>> &cs, double max_w,
 //               double threshold = std::numeric_limits<double>::epsilon())
 auto generate(const Eigen::Vector<T, Eigen::Dynamic> &Rs,
               const Eigen::Matrix<T, 3, Eigen::Dynamic> &cs, double max_w)
-    -> Eigen::Vector<T, Eigen::Dynamic> {
+-> Eigen::Vector<T, Eigen::Dynamic> {
   // std::vector<Eigen::Vector<T, Eigen::Dynamic>> xs;
   std::vector<T> ws;
 
@@ -102,7 +109,7 @@ auto generate(const Eigen::Vector<T, Eigen::Dynamic> &Rs,
     auto N = static_cast<size_t>(std::ceil(area / max_w));
 
     // Leopardi partition of the unit sphere at the origin.
-    auto [w_0, points_sph] = leopardi_partition(N);
+    auto[w_0, points_sph] = leopardi_partition(N);
 
     // EQ points on the unit sphere in Cartesian coordinates
     Eigen::Matrix3Xd ps_I = spherical_to_cartesian(points_sph);
