@@ -1,9 +1,13 @@
 #include "Sphere.hpp"
 
 #include <cmath>
+#include <tuple>
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
+
+#include <fmt/ostream.h>
+#include <fmt/ranges.h>
+#include <spdlog/spdlog.h>
 
 #include "LeopardiPartition.hpp"
 
@@ -15,10 +19,8 @@ Sphere::Sphere(double max_w, double r, Eigen::Vector3d c)
   N_ = static_cast<size_t>(std::ceil(area / max_w));
 
   // Leopardi partition of the unit sphere at the origin.
-  auto [w_0, points_sph] = leopardi_partition(N_);
-
-  // set w_0_ to the value computed
-  w_0_ = w_0;
+  Eigen::Matrix2Xd points_sph;
+  std::tie(w_0_, points_sph) = leopardi_partition(N_);
 
   // compute normal vectors at the EQ points by transforming EQ points from
   // spherical to Cartesian coordinates on the unit sphere
@@ -40,14 +42,5 @@ Sphere::Sphere(double max_w, double r, Eigen::Vector3d c)
       }
     }
   }
-}
-
-auto Sphere::switching(const Eigen::Vector3d &p, double rho) const -> double {
-  // signed normal distance
-  auto s = (p - center_).norm() - radius_;
-  // penetration distance
-  auto x = s / rho;
-
-  return 0.5 * (1.0 + std::erf(x));
 }
 } // namespace classyq

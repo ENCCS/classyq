@@ -1,8 +1,11 @@
 #pragma once
 
 #include <cmath>
+#include <type_traits>
 
 #include <Eigen/Core>
+#include <autodiff/forward/dual.hpp>
+#include <autodiff/forward/dual/eigen.hpp>
 
 #include "LeopardiPartition.hpp"
 #include "math_utils.hpp"
@@ -84,7 +87,8 @@ private:
 public:
   /** Constructor from maximum quadrature weight.
    *
-   * @param[in] max_w maximum quadrature weight.
+   * @param[in] max_w maximum quadrature weight (inverse of the density of
+   * points)
    * @param[in] r radius of the sphere.
    * @param[in] c center of the sphere.
    */
@@ -114,7 +118,19 @@ public:
    * = |\mathbf{p} - \mathbf{r}_{\alpha}| - R_{\alpha}\f$ and the *interaction
    * radius* \f$\rho\f$. The latter is a function of the given evaluation point.
    */
-  auto switching(const Eigen::Vector3d &p, double rho) const -> double;
+  template <typename T = double>
+  auto switching(const Eigen::Vector<T, 3> &p, double rho) const -> T {
+    // signed normal distance
+    T s = (p - center_).norm() - radius_;
+    // penetration distance
+    T x = s / rho;
+
+    if constexpr (std::is_same_v<T, double>) {
+      return 0.5 * (1.0 + std::erf(x));
+    } else {
+      return 0.5 * (1.0 + erf(x));
+    }
+  }
 
   /** Center of sphere. */
   auto center() const -> Eigen::Vector3d { return center_; }

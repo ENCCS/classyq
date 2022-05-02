@@ -1,3 +1,5 @@
+#option(CLASSYQ_UNIT_TESTS )
+
 # Export compile commands for each file to JSON
 # This is useful for static analysis tools and linters
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

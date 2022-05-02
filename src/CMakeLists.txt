@@ -56,18 +56,21 @@ target_link_libraries(classyq-objs
     fmt::fmt
     HighFive
     spdlog::spdlog
+    autodiff::autodiff
   )
 
-#add_subdirectory(...)
+#add_subdirectory(utils)
 
-add_executable(foo foo.cpp)
+foreach(exe IN ITEMS foo dervs)
+add_executable(${exe} ${exe}.cpp)
 
-target_compile_features(foo
+target_compile_features(${exe}
   PUBLIC
     cxx_std_17
   )
 
-target_link_libraries(foo
+target_link_libraries(${exe}
   PRIVATE
     classyq-objs
   )
+endforeach()

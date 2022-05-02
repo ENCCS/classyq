@@ -3,11 +3,12 @@
 #include <tuple>
 #include <vector>
 
+#include <Eigen/Core>
+#include <autodiff/forward/dual.hpp>
+#include <autodiff/forward/dual/eigen.hpp>
 #include <fmt/ostream.h>
 #include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
-
-#include <Eigen/Core>
 
 #include "Sphere.hpp"
 
@@ -55,6 +56,7 @@ TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
     auto w = spheres[I].weight();
     weights_0_.push_back(spheres[I].weight0());
     radii_.push_back(spheres[I].radius());
+
     auto rho = std::sqrt(w / M_PI);
     // normal vectors
     const auto ns_I = spheres[I].points();
@@ -63,14 +65,14 @@ TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
     for (const auto &n_I : ns_I.colwise()) {
       // affine transformation
       auto p_I = T * n_I;
-      auto w_I = w;
+      autodiff::dual w_I = w;
       for (const auto J : neighbors[I]) {
         w_I *= spheres[J].switching(p_I, rho);
       }
-      // accumulate points and per-sphere statistics (e.g. exposed area, number
-      // of points)
+      //  accumulate points and per-sphere statistics (e.g. exposed area, number
+      //  of points)
       if (w_I >= threshold) {
-        ws.push_back(w_I);
+        ws.push_back(autodiff::val(w_I));
         // push back x, y, z of point
         ps.push_back(p_I(0));
         ps.push_back(p_I(1));
@@ -95,6 +97,6 @@ TsLess::TsLess(const std::vector<Sphere> &spheres, double threshold) {
   self_fields_ = Eigen::Map<Eigen::VectorXd>(gs.data(), gs.size());
   normals_ = Eigen::Map<Eigen::Matrix3Xd>(ns.data(), 3, ns.size() / 3);
 
-  SPDLOG_INFO("npoints_on_sphere_ {}", npoints_on_sphere_);
+  SPDLOG_INFO("npoints_on_sphere_ {}", points_per_sphere_);
 }
 } // namespace classyq
