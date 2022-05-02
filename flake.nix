@@ -21,13 +21,13 @@
         pkgs = nixpkgs.legacyPackages.${system};
         pythonEnv = mach-nix.lib."${system}".mkPython {
           requirements = ''
-            jupyterlab
+            #jupyterlab
             numpy
           '';
         };
       in
       {
-        devShell = pkgs.mkShell.override { stdenv = pkgs.llvmPackages_13.stdenv; } {
+        devShell = pkgs.mkShell.override { stdenv = pkgs.llvmPackages_14.stdenv; } {
           nativeBuildInputs = with pkgs; [
             clang-analyzer
             clang-tools
@@ -38,7 +38,8 @@
             hdf5
             highfive
             lldb
-            llvmPackages_13.openmp
+            llvmPackages_14.clang-manpages
+            llvmPackages_14.openmp
             ninja
             pythonEnv
             pythonEnv.pkgs.jax

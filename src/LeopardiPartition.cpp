@@ -95,7 +95,7 @@ auto leopardi_partition(size_t N) -> std::tuple<double, Eigen::Matrix2Xd> {
     auto a_top = theta[i - 1];
     // a_bot is the colatitude of the bottom of the current collar.
     auto a_bot = theta[i];
-    auto n_regions = y[i];
+    n_regions = y[i];
 
     auto a_point = (a_top + a_bot) / 2.0;
 
