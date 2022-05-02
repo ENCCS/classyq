@@ -11,8 +11,12 @@ else()
 
   FetchContent_Declare(autodiff
     QUIET
-    URL
-      https://github.com/autodiff/autodiff/archive/v0.6.6.zip
+    GIT_REPOSITORY
+      https://github.com/autodiff/autodiff
+    GIT_TAG
+     58e1ca5afd20c5b3b85529729a5dac8fc87c2561  # main branch on 2022-05-02 
+    #URL
+    #  https://github.com/autodiff/autodiff/archive/v0.6.7.zip
     )
 
   set(AUTODIFF_BUILD_TESTS    OFF CACHE BOOL "" FORCE)

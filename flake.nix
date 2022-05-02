@@ -29,7 +29,6 @@
       {
         devShell = pkgs.mkShell.override { stdenv = pkgs.llvmPackages_13.stdenv; } {
           nativeBuildInputs = with pkgs; [
-            catch2
             clang-analyzer
             clang-tools
             cmake
@@ -38,15 +37,13 @@
             fmt_8
             hdf5
             highfive
+            lldb
             llvmPackages_13.openmp
             ninja
-            spdlog
-          ];
-          buildInputs = with pkgs; [
             pythonEnv
             pythonEnv.pkgs.jax
             pythonEnv.pkgs.jaxlib
-            lldb
+            spdlog
             valgrind
           ];
 
