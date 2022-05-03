@@ -31,11 +31,8 @@ Vector3dual f(const Vector3dual &r_i, const Vector3dual &r_j) {
 
 using namespace classyq;
 
-Eigen::VectorXd computeMEP(const Eigen::Matrix3Xd &grid, double charge,
-                           const Eigen::Vector3d &origin) {
-  return (charge / (grid.colwise() - origin).colwise().norm().array())
-      .colwise()
-      .sum();
+Eigen::VectorXd computeMEP(const Eigen::Matrix3Xd &grid, double charge, const Eigen::Vector3d &origin) {
+  return (charge / (grid.colwise() - origin).colwise().norm().array()).colwise().sum();
 }
 
 Eigen::MatrixXd Smatrix(const TsLess &cavity) {
@@ -45,9 +42,7 @@ Eigen::MatrixXd Smatrix(const TsLess &cavity) {
   S.diagonal() = cavity.fs().array() / cavity.weights().array();
   for (auto i = 0; i < sz; ++i) {
     auto p_i = cavity.points(i);
-    for (auto j = i + 1; j < sz; ++j) {
-      S(i, j) = S(j, i) = 1.0 / (p_i - cavity.points(j)).norm();
-    }
+    for (auto j = i + 1; j < sz; ++j) { S(i, j) = S(j, i) = 1.0 / (p_i - cavity.points(j)).norm(); }
   }
 
   return S;
@@ -82,18 +77,29 @@ using Stencil = std::map<int, std::vector<double>>;
 //     {9, std::vector{1.0 / 280.0, -4.0 / 105.0, 1.0 / 5.0, -4.0 / 5.0, 0.0,
 //                     4.0 / 5.0, -1.0 / 5.0, 4.0 / 105.0, -1.0 / 280.0}}};
 
-auto first = Stencil{
-    {5, std::vector{1.0 / 12.0, -2.0 / 3.0, 0.0, 2.0 / 3.0, -1.0 / 12.0}}};
+auto first = Stencil{{5, std::vector{1.0 / 12.0, -2.0 / 3.0, 0.0, 2.0 / 3.0, -1.0 / 12.0}}};
 
 auto stencils = std::map<int, Stencil>{{1, first}};
 
-constexpr auto second_derivative = std::array<double, 9>{
-    -1.0 / 560.0, 8.0 / 315.0, -1.0 / 5.0,  8.0 / 5.0,   -205.0 / 72.0,
-    8.0 / 5.0,    -1.0 / 5.0,  8.0 / 315.0, -1.0 / 560.0};
+constexpr auto second_derivative = std::array<double, 9>{-1.0 / 560.0,
+                                                         8.0 / 315.0,
+                                                         -1.0 / 5.0,
+                                                         8.0 / 5.0,
+                                                         -205.0 / 72.0,
+                                                         8.0 / 5.0,
+                                                         -1.0 / 5.0,
+                                                         8.0 / 315.0,
+                                                         -1.0 / 560.0};
 
-constexpr auto third_derivative = std::array<double, 9>{
-    -7.0 / 240.0, 3.0 / 10.0,    -169.0 / 120.0, 61.0 / 30.0, 0.0,
-    -61.0 / 30.0, 169.0 / 120.0, -3.0 / 10.0,    7.0 / 240.0};
+constexpr auto third_derivative = std::array<double, 9>{-7.0 / 240.0,
+                                                        3.0 / 10.0,
+                                                        -169.0 / 120.0,
+                                                        61.0 / 30.0,
+                                                        0.0,
+                                                        -61.0 / 30.0,
+                                                        169.0 / 120.0,
+                                                        -3.0 / 10.0,
+                                                        7.0 / 240.0};
 
 // for 2-atom molecule
 auto finite_difference(double h = 0.001) {
@@ -123,8 +129,7 @@ auto finite_difference(double h = 0.001) {
         i += 1;
       }
 
-      Eigen::VectorXd dwds1_z =
-          std::accumulate(std::next(tmps.cbegin()), tmps.cend(), tmps[0]);
+      Eigen::VectorXd dwds1_z = std::accumulate(std::next(tmps.cbegin()), tmps.cend(), tmps[0]);
 
       SPDLOG_INFO("dwds1_z\n{}", dwds1_z);
     }
@@ -154,7 +159,7 @@ int main() {
   Eigen::Matrix3Xd cs(3, 2);
   cs.col(0) = c1;
   cs.col(1) = c2;
-  auto tsk = generate<double>(Rs, cs, max_w);
+  auto tsk = generate<double>(Rs, cs, max_w, 1.0e-9);
 
   auto tsless = TsLess({s1, s2});
 
@@ -172,8 +177,7 @@ int main() {
   Eigen::VectorXd q = -(permittivity - 1.0) / (permittivity)*S.ldlt().solve(V);
   // Gauss estimate
   auto gauss = q.sum();
-  SPDLOG_INFO("<< CPCM >>\ntotalASC = {}; gauss = {}; Delta = {}", totalASC,
-              gauss, totalASC - gauss);
+  SPDLOG_INFO("<< CPCM >>\ntotalASC = {}; gauss = {}; Delta = {}", totalASC, gauss, totalASC - gauss);
 
   // isotropic IEFPCM
   auto D = Dmatrix(tsless);
@@ -182,13 +186,11 @@ int main() {
   auto factor = (permittivity + 1) / (permittivity - 1);
   Eigen::MatrixXd Id = Eigen::MatrixXd::Identity(sz, sz);
 
-  Eigen::MatrixXd T =
-      (2 * M_PI * factor * Id - D * tsless.weights().asDiagonal()) * S;
+  Eigen::MatrixXd T = (2 * M_PI * factor * Id - D * tsless.weights().asDiagonal()) * S;
   Eigen::MatrixXd R = (2 * M_PI * Id - D * tsless.weights().asDiagonal());
   q = -T.inverse() * R * V;
   gauss = q.sum();
-  SPDLOG_INFO("<< IEFPCM >>\ntotalASC = {}; gauss = {}; Delta = {}", totalASC,
-              gauss, totalASC - gauss);
+  SPDLOG_INFO("<< IEFPCM >>\ntotalASC = {}; gauss = {}; Delta = {}", totalASC, gauss, totalASC - gauss);
 
   finite_difference();
 
@@ -200,8 +202,7 @@ int main() {
     return TsLess({s0, s1}).weights();
   };
 
-  auto dwds0_z =
-      utils::FiniteDifference<1, utils::FivePointStencil>::compute(gen);
+  auto dwds0_z = utils::FiniteDifference<1, utils::FivePointStencil>::compute(gen);
 
   SPDLOG_INFO("dwds0_z\n{}", dwds0_z);
 

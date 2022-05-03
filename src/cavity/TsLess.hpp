@@ -24,7 +24,7 @@ namespace classyq {
  * automatic differentiation, instead of being coded explicitly.
  */
 class TsLess final {
-private:
+  private:
   /** Total number of quadrature points. */
   size_t N_{0};
 
@@ -44,9 +44,8 @@ private:
   std::vector<double> weights_0_;
   std::vector<double> radii_;
 
-public:
-  TsLess(const std::vector<Sphere> &ss,
-         double threshold = std::numeric_limits<double>::epsilon());
+  public:
+  TsLess(const std::vector<Sphere> &ss, double threshold = std::numeric_limits<double>::epsilon());
 
   auto size() const -> size_t { return N_; }
 
@@ -72,14 +71,11 @@ public:
   /**@}*/
 };
 
-template<typename T>
-auto neighbors(T R0, const Eigen::Vector<T, 3> &c0, T R1,
-               const Eigen::Vector<T, 3> &c1) -> bool {
+template <typename T> auto neighbors(T R0, const Eigen::Vector<T, 3> &c0, T R1, const Eigen::Vector<T, 3> &c1) -> bool {
   return ((c1 - c0).norm() <= R0 + R1);
 }
 
-template<typename T = double>
-auto switching(T x) -> T {
+template <typename T = double> auto switching(T x) -> T {
   if constexpr (std::is_floating_point_v<T>) {
     return 0.5 * (1.0 + std::erf(x));
   } else {
@@ -87,13 +83,14 @@ auto switching(T x) -> T {
   }
 }
 
-template<typename T = double>
+template <typename T = double>
 // auto generate(const std::vector<T> &Rs,
 //               const std::vector<Eigen::Vector<T, 3>> &cs, double max_w,
 //               double threshold = std::numeric_limits<double>::epsilon())
 auto generate(const Eigen::Vector<T, Eigen::Dynamic> &Rs,
-              const Eigen::Matrix<T, 3, Eigen::Dynamic> &cs, double max_w)
--> Eigen::Vector<T, Eigen::Dynamic> {
+              const Eigen::Matrix<T, 3, Eigen::Dynamic> &cs,
+              double max_w,
+              double threshold) -> Eigen::Vector<T, Eigen::Dynamic> {
   // std::vector<Eigen::Vector<T, Eigen::Dynamic>> xs;
   std::vector<T> ws;
 
@@ -109,7 +106,7 @@ auto generate(const Eigen::Vector<T, Eigen::Dynamic> &Rs,
     auto N = static_cast<size_t>(std::ceil(area / max_w));
 
     // Leopardi partition of the unit sphere at the origin.
-    auto[w_0, points_sph] = leopardi_partition(N);
+    auto [w_0, points_sph] = leopardi_partition(N);
 
     // EQ points on the unit sphere in Cartesian coordinates
     Eigen::Matrix3Xd ps_I = spherical_to_cartesian(points_sph);
@@ -142,8 +139,7 @@ auto generate(const Eigen::Vector<T, Eigen::Dynamic> &Rs,
     }
   }
 
-  Eigen::Vector<T, Eigen::Dynamic> weights =
-      Eigen::Map<Eigen::Vector<T, Eigen::Dynamic>>(ws.data(), ws.size());
+  Eigen::Vector<T, Eigen::Dynamic> weights = Eigen::Map<Eigen::Vector<T, Eigen::Dynamic>>(ws.data(), ws.size());
 
   return weights;
 }
