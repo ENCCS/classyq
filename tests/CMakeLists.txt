@@ -16,8 +16,8 @@ foreach(_dir IN ITEMS cavity)
 endforeach()
 
 # automatic discovery of unit tests
-include(doctest)
 doctest_discover_tests(unit_tests
   PROPERTIES
     LABELS "unit"
+    EXTRA_ARGS "--success=true"
   )

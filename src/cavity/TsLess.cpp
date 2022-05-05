@@ -114,18 +114,19 @@ TsLess::str() const -> std::string
   str += fmt::format("Number of irreducible grid points: {}\n", N_);
   str += fmt::format("============ Spheres list (in Angstrom)\n");
   // FIXME alignment and spacing
-  str += fmt::format("{1:s} {2:s} {3:s} ({0:s}) {4:s} {5:s} ({0:s}) {6:s} ({0:s}) {7:s} ({0:s}) {8:s} {9:s} ({0:s}^2)\n",
-                     "Ang",
-                     "Sphere",
-                     "on atom",
-                     "Radius",
-                     "Alpha",
-                     "X",
-                     "Y",
-                     "Z",
-                     "Grid points",
-                     "Surface");
-  str+= fmt::format("{:-^90}\n", "");
+  str +=
+    fmt::format("{1:s} {2:s} {3:s} ({0:s}) {4:s} {5:s} ({0:s}) {6:s} ({0:s}) {7:s} ({0:s}) {8:s} {9:s} ({0:s}^2)\n",
+                "Ang",
+                "Sphere",
+                "on atom",
+                "Radius",
+                "Alpha",
+                "X",
+                "Y",
+                "Z",
+                "Grid points",
+                "Surface");
+  str += fmt::format("{:-^90}\n", "");
   auto idx = 0;
   // FIXME alignment and spacing
   for (const auto& s : spheres_) {

@@ -13,9 +13,16 @@
 
 using namespace classyq;
 
-TEST_CASE("Leopardi partition with 256 points") {
+TEST_CASE("Leopardi partition with 256 points")
+{
   size_t N = 1 << 8;
-  auto [w_0, points] = leopardi_partition(N);
+
+  auto ret = leopardi_partition(N);
+
+  auto w_0 = std::get<0>(ret);
+  REQUIRE(w_0 == doctest::Approx((4.0 * M_PI) / N));
+
+  auto points = std::get<1>(ret);
 
   // load reference data from Matlab implementation
   H5Easy::File file("cavity/leopardi.h5", H5Easy::File::ReadOnly);
@@ -23,8 +30,7 @@ TEST_CASE("Leopardi partition with 256 points") {
   // data is stored in mathematicians' convention:
   // column 0: azimuthal angles
   // column 1: polar angles
-  auto ref_sph =
-      H5Easy::load<Eigen::MatrixX2d>(file, "/leopardi/spherical/256");
+  auto ref_sph = H5Easy::load<Eigen::MatrixX2d>(file, "/leopardi/spherical/256");
 
   REQUIRE(allclose(points.row(0).transpose(), ref_sph.col(1)));
 
@@ -33,8 +39,7 @@ TEST_CASE("Leopardi partition with 256 points") {
   // column 0: x
   // column 1: y
   // column 2: z
-  auto ref_cart =
-      H5Easy::load<Eigen::MatrixX3d>(file, "/leopardi/cartesian/256");
+  auto ref_cart = H5Easy::load<Eigen::MatrixX3d>(file, "/leopardi/cartesian/256");
 
   // perform spherical-to-Cartesian transformation
   for (auto i = 0; i < N; ++i) {
