@@ -36,7 +36,7 @@ TEST_CASE("TsLess partition of two interlocking spheres") {
   auto ref_area = (a1 + a2) - (cap1 + cap2);
   fmt::print("ref_area = {}\n", ref_area);
 
-  auto tsless = TsLess({s1, s2});
+  auto tsless = TsLess({s1, s2}, 1.0e-9);
 
   auto area = tsless.area();
   fmt::print("area = {}\n", area);
@@ -90,7 +90,7 @@ TEST_CASE("TsLess partition of three interlocking spheres") {
   auto ref_area = (a1 + a2 + a3) - (cap1_2 + cap1_3 + cap2_1 + cap3_1);
   fmt::print("ref_area = {}\n", ref_area);
 
-  auto tsless = TsLess({s1, s2, s3});
+  auto tsless = TsLess({s1, s2, s3}, 1.0e-9);
 
   auto area = tsless.area();
   fmt::print("area = {}\n", area);

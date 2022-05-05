@@ -1,11 +1,10 @@
 #pragma once
 
-#include <numeric>
-#include <tuple>
+#include <string>
 #include <vector>
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <fmt/format.h>
 
 #include "Sphere.hpp"
 
@@ -20,13 +19,18 @@ namespace classyq {
  * a polynomial.
  * 2. The diagonal factors for the collocation of the boundary integral
  * operators are defined as in \cite Scalmani2010-tw.
- * 3. Finally, the geometric derivatives of the cavity are computed with
- * automatic differentiation, instead of being coded explicitly.
  */
-class TsLess final {
-  private:
+class TsLess final
+{
+private:
   /** Total number of quadrature points. */
-  size_t N_{0};
+  size_t N_{ 0 };
+
+  /** Quadrature weight threshold. */
+  double threshold_{ std::numeric_limits<double>::epsilon() };
+
+  /** List of spheres */
+  std::vector<Sphere> spheres_;
 
   /** Weight of quadrature points. */
   Eigen::VectorXd weights_;
@@ -37,17 +41,18 @@ class TsLess final {
   /** Normal vectors at quadrature points. */
   Eigen::Matrix3Xd normals_;
 
-  Eigen::VectorXd self_potentials_;
-  Eigen::VectorXd self_fields_;
-
+  /** List of points per sphere in the final quadrature. */
   std::vector<size_t> points_per_sphere_;
-  std::vector<double> weights_0_;
-  std::vector<double> radii_;
 
-  public:
-  TsLess(const std::vector<Sphere> &ss, double threshold = std::numeric_limits<double>::epsilon());
+  /** List of exposed areas per sphere. */
+  std::vector<double> exposed_area_;
+
+public:
+  TsLess(const std::vector<Sphere>& ss, double threshold);
 
   auto size() const -> size_t { return N_; }
+
+  auto threshold() const -> double { return threshold_; }
 
   auto weights() const -> Eigen::VectorXd { return weights_; }
 
@@ -61,86 +66,17 @@ class TsLess final {
 
   auto area() const -> double { return weights_.sum(); }
 
-  auto fs() const -> Eigen::VectorXd { return self_potentials_; }
-
-  auto gs() const -> Eigen::VectorXd { return self_fields_; }
-
-  auto self_factors() const -> std::tuple<Eigen::VectorXd, Eigen::VectorXd>;
-
-  /** @{ Iterators */
-  /**@}*/
+  /** String representation of object. */
+  auto str() const -> std::string;
 };
-
-template <typename T> auto neighbors(T R0, const Eigen::Vector<T, 3> &c0, T R1, const Eigen::Vector<T, 3> &c1) -> bool {
-  return ((c1 - c0).norm() <= R0 + R1);
-}
-
-template <typename T = double> auto switching(T x) -> T {
-  if constexpr (std::is_floating_point_v<T>) {
-    return 0.5 * (1.0 + std::erf(x));
-  } else {
-    return 0.5 * (1.0 + erf(x));
-  }
-}
-
-template <typename T = double>
-// auto generate(const std::vector<T> &Rs,
-//               const std::vector<Eigen::Vector<T, 3>> &cs, double max_w,
-//               double threshold = std::numeric_limits<double>::epsilon())
-auto generate(const Eigen::Vector<T, Eigen::Dynamic> &Rs,
-              const Eigen::Matrix<T, 3, Eigen::Dynamic> &cs,
-              double max_w,
-              double threshold) -> Eigen::Vector<T, Eigen::Dynamic> {
-  // std::vector<Eigen::Vector<T, Eigen::Dynamic>> xs;
-  std::vector<T> ws;
-
-  auto N_sph = Rs.size();
-
-  for (auto I = 0; I < N_sph; ++I) {
-    T R_I = Rs(I);
-    Eigen::Vector<T, 3> c_I = cs.col(I);
-
-    // generate Leopardi partition for sphere I
-    auto area = surface_of_sphere(autodiff::val(R_I));
-    // number of points in Leopardi partitioning of the unit sphere.
-    auto N = static_cast<size_t>(std::ceil(area / max_w));
-
-    // Leopardi partition of the unit sphere at the origin.
-    auto [w_0, points_sph] = leopardi_partition(N);
-
-    // EQ points on the unit sphere in Cartesian coordinates
-    Eigen::Matrix3Xd ps_I = spherical_to_cartesian(points_sph);
-
-    auto w = w_0 * pow(R_I, 2);
-    auto rho_Ik = sqrt(w / M_PI);
-
-    // loop over EQ points on sphere I
-    for (const auto &p : ps_I.colwise()) {
-      T w_Ik = w;
-      Eigen::Vector<T, 3> p_Ik = R_I * p + c_I;
-
-      // loop over intersecting spheres
-      for (auto J = 0; J < N_sph; ++J) {
-        auto R_J = Rs(J);
-        auto c_J = cs.col(J);
-
-        auto do_J = (I != J) && (neighbors<T>(R_I, c_I, R_J, c_J));
-        if (do_J) {
-
-          // penetration distance of k-th point on sphere I with respect to
-          // sphere J
-          T x_IJk = ((p_Ik - c_J).norm() - R_J) / rho_Ik;
-          w_Ik *= switching<T>(x_IJk);
-        }
-      }
-
-      ws.push_back(w_Ik);
-      // xs.push_back(p_Ik);
-    }
-  }
-
-  Eigen::Vector<T, Eigen::Dynamic> weights = Eigen::Map<Eigen::Vector<T, Eigen::Dynamic>>(ws.data(), ws.size());
-
-  return weights;
-}
 } // namespace classyq
+
+template<>
+struct fmt::formatter<classyq::TsLess> : fmt::formatter<std::string_view>
+{
+  template<typename FormatContext>
+  auto format(const classyq::TsLess& obj, FormatContext& ctx) -> decltype(ctx.out())
+  {
+    return fmt::formatter<std::string_view>::format(obj.str(), ctx);
+  }
+};

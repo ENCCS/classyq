@@ -1,5 +1,5 @@
 # set minimum cmake version
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.19...3.20)
 
 # project name
 project(ClassyQ LANGUAGES CXX)
@@ -58,7 +58,6 @@ include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_eigen3.cmake)
 include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_fmt.cmake)
 include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_spdlog.cmake)
 include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_HighFive.cmake)
-include(${PROJECT_SOURCE_DIR}/external/upstream/fetch_autodiff.cmake)
 
 include(${PROJECT_SOURCE_DIR}/cmake/custom/classyq.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/downloaded/autocmake_save_flags.cmake)

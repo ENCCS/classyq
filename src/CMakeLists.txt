@@ -50,7 +50,6 @@ target_link_libraries(classyq-objs
     fmt::fmt
     HighFive
     spdlog::spdlog
-    autodiff::autodiff
   )
 
 foreach(exe IN ITEMS foo)
