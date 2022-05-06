@@ -2,5 +2,7 @@ name: classyq-gha
 channels:
   - conda-forge
 dependencies:
+  - cxx-compiler
+  - clangxx
   - hdf5
   - ninja
