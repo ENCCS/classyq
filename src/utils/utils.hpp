@@ -20,6 +20,12 @@
 #include <fmt/format.h>
 
 namespace classyq {
+/** Information on allocation size in human-readable units.
+ *
+ * @tparam T type of allocated data.
+ * @param[in] count number of elements allocated.
+ * @return string representation of amount of allocated data.
+ */
 template<typename T>
 auto
 memory_with_units(size_t count) -> std::string

@@ -105,37 +105,14 @@ private:
 public:
   /** Constructor from maximum quadrature weight.
    *
-   * @param[in] max_w maximum quadrature weight (inverse of the density of
-   * points)
+   * @param[in] max_w maximum quadrature weight (inverse of the density of points)
    * @param[in] r radius of the sphere.
    * @param[in] c center of the sphere.
+   * @param[in] on_atom whether the sphere is centered on an atom.
+   * Spheres not centered on atoms do not contribute to the molecular gradient.
    */
   Sphere(double max_w, double r, const Eigen::Vector3d& c, bool on_atom = true);
 
-  /** Value of switching function at given point.
-   *
-   * @param[in] p evaluation point.
-   * @param[in] rho interaction radius of point.
-   *
-   * The switching function is a smoothed Heaviside step function,
-   * 0 if the point is inside this sphere, 1 if it's outside.
-   *
-   * Formally:
-   *
-   * \f[
-   *   \tilde{H}(x) = \frac{1}{2}\left[ 1 + \erf\left(x\right) \right],
-   * \f]
-   *
-   * where \f$x\f$ is the *penetration distance*:
-   *
-   * \f[
-   *   x = \frac{s_{\alpha}(\mathbf{p})}{\rho},
-   * \f]
-   *
-   * defined in terms of the *signed normal distance* \f$s_{\alpha}(\mathbf{p})
-   * = |\mathbf{p} - \mathbf{r}_{\alpha}| - R_{\alpha}\f$ and the *interaction
-   * radius* \f$\rho\f$. The latter is a function of the given evaluation point.
-   */
   /** Switching function at given point.
    *
    * @param[in] s evaluation point.

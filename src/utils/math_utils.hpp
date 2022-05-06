@@ -39,8 +39,6 @@ spherical_to_cartesian(double theta, double phi, double R = 1.0, const Eigen::Ve
 /** Spherical to Cartesian transformation on the unit sphere.
  *
  * @param[in] sph (2 x N) matrix of spherical coordinates.
- * @param[in] R radial distance of point.
- * @param[in] c translation vector.
  *
  * See here: https://stackoverflow.com/a/51569396/2528668
  */

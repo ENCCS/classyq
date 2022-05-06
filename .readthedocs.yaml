@@ -8,6 +8,7 @@ build:
     - doxygen
 
 sphinx:
+   builder: dirhtml
    configuration: docs/conf.py
 
 python:
