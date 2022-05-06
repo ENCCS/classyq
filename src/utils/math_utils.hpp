@@ -2,12 +2,14 @@
 
 #include <Eigen/Core>
 
+namespace classyq {
 /** Surface area of a sphere.
  *
  * @param[in] r radius.
  * @return surface of the sphere \f$A = 4\pi r^{2}\f$.
  */
-auto surface_of_sphere(double r) -> double;
+auto
+surface_of_sphere(double r) -> double;
 
 /** Surface area of spherical cap.
  *
@@ -20,7 +22,8 @@ auto surface_of_sphere(double r) -> double;
  * @note Leopardi uses the equivalent formula:
  * \f$ A = 4 \pi r^{2} \sin^{2}\left(\frac{\theta}{2}\right)\f$.
  */
-auto surface_of_cap(double theta, double r) -> double;
+auto
+surface_of_cap(double theta, double r) -> double;
 
 /** Spherical to Cartesian transformation.
  *
@@ -30,9 +33,8 @@ auto surface_of_cap(double theta, double r) -> double;
  * @param[in] c translation vector.
  */
 auto
-spherical_to_cartesian(double theta, double phi, double R = 1.0,
-                       const Eigen::Vector3d &c = Eigen::Vector3d::Zero())
-    -> Eigen::Vector3d;
+spherical_to_cartesian(double theta, double phi, double R = 1.0, const Eigen::Vector3d& c = Eigen::Vector3d::Zero())
+  -> Eigen::Vector3d;
 
 /** Spherical to Cartesian transformation on the unit sphere.
  *
@@ -42,8 +44,8 @@ spherical_to_cartesian(double theta, double phi, double R = 1.0,
  *
  * See here: https://stackoverflow.com/a/51569396/2528668
  */
-auto spherical_to_cartesian(const Eigen::Matrix2Xd &sph)
-    -> Eigen::Matrix3Xd;
+auto
+spherical_to_cartesian(const Eigen::Matrix2Xd& sph) -> Eigen::Matrix3Xd;
 
 /** Spherical to Cartesian transformation.
  *
@@ -53,9 +55,8 @@ auto spherical_to_cartesian(const Eigen::Matrix2Xd &sph)
  *
  * See here: https://stackoverflow.com/a/51569396/2528668
  */
-auto spherical_to_cartesian(const Eigen::Matrix2Xd &sph, double R,
-                                   const Eigen::Vector3d &c)
-    -> Eigen::Matrix3Xd;
+auto
+spherical_to_cartesian(const Eigen::Matrix2Xd& sph, double R, const Eigen::Vector3d& c) -> Eigen::Matrix3Xd;
 
 /** Colatitude of the spherical cap resulting from the intersection of two
  * spheres.
@@ -70,5 +71,6 @@ auto spherical_to_cartesian(const Eigen::Matrix2Xd &sph, double R,
  * For the derivation see:
  * https://en.wikipedia.org/wiki/Spherical_cap#Areas_of_intersecting_spheres
  */
-auto polar_angle_cap_of_intersection(double R, double r, double d)
-    -> double;
+auto
+polar_angle_cap_of_intersection(double R, double r, double d) -> double;
+} // namespace classyq

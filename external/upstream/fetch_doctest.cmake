@@ -1,4 +1,4 @@
-find_package(doctest 2.8 CONFIG QUIET
+find_package(doctest 2.4 CONFIG QUIET
   NO_CMAKE_PATH
   NO_CMAKE_PACKAGE_REGISTRY
   )
