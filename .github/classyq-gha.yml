@@ -4,4 +4,5 @@ channels:
 dependencies:
   - cmake
   - cxx-compiler
+  - hdf5
   - ninja
