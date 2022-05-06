@@ -49,8 +49,10 @@ jobs:
     - name: Select CMake CLI options
       run: |
         echo "We are running on ${{ matrix.os }}"
-        if [ "${{ matrix.os }}" != "windows-latest" ]; then
-           echo "Do nothing!"
+        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+           echo "CXX=g++" >> $GITHUB_ENV
+        elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+           echo "CXX=clang++" >> $GITHUB_ENV
         else
            echo "CXX=clang-cl" >> $GITHUB_ENV
         fi
