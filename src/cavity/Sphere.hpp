@@ -38,12 +38,12 @@ private:
 
   /** Weight of EQ points **for the unit sphere**.
    *
-   * This is set to \f$ w_{0} = \frac{4\pi}{N} \f$, while the weight is \f$w =
-   * w_{0}R^{2}\f$. The former is used in the definition of the self-potential
+   * This is set to \f$ \omega = \frac{4\pi}{N} \f$, while the weight is \f$w =
+   * \omega R^{2}\f$. The former is used in the definition of the self-potential
    * and self-field factors, while the latter is the weight used in the
    * quadrature of the interlocking-sphere cavity.
    */
-  double w_0_{ 0.0 };
+  double omega_{ 0.0 };
 
   /** Radius. */
   double radius_{ 0.0 };
@@ -58,50 +58,6 @@ private:
    */
   Eigen::Matrix3Xd points_;
 
-  /** Self-potential factors **for the unit sphere**.
-   *
-   * The formula is given by Scalmani and Frisch \cite Scalmani2010-tw
-   *
-   * We implement it in terms of the EQ partition, where the weights are the
-   * same for all points and there is no Gaussian smearing of the point charges:
-   *
-   * \f[
-   *   f_{i} = 4\pi -  w_{0}\sum_{j \neq i} \frac{1}{r_{ij}},
-   * \f]
-   *
-   * here \f$r_{ij} = |\mathbf{r}_{i} - \mathbf{r}_{j} |\f$ are the distances
-   * between EQ points on the unit sphere.
-   * The self-potential factors for the non-unit sphere are: \f$ f_{i}(R) =
-   * Rf_{i}\f$.
-   */
-  Eigen::VectorXd self_potentials_;
-
-  /** Self-field factors **for the unit sphere**.
-   *
-   * The formula is given by Scalmani and Frisch \cite Scalmani2010-tw It is
-   * derived from Gauss' theorem and was first published by Purisima and Nilar
-   * \cite Purisima1995-kc
-   *
-   * We implement it in terms of the EQ partition, where the weights are the
-   * same for all points and there is no Gaussian smearing of the point charges:
-   *
-   * \f[
-   *   g_{i}
-   *   =
-   *   - 2\pi
-   *   - w_{0}\sum_{j \neq i} \frac{(\mathbf{r}_i - \mathbf{r}_{j})\cdot
-   * \hat{\mathbf{n}}_{j}}{r^{3}_{ij}},
-   * \f]
-   *
-   * here \f$r_{ij} = |\mathbf{r}_{i} - \mathbf{r}_{j} |\f$ is the distance
-   * between EQ points \f$i\f$ and \f$j\f$ on the unit sphere, while
-   * \f$\hat{\mathbf{n}}_{i}\f$ is the normal vector at EQ point \f$i\f$. Since
-   * we are on the unit sphere at the origin, the EQ points **are** also the
-   * normal vectors. The self-field factors for the non-unit sphere are: \f$
-   * g_{i}(R) = g_{i}\f$.
-   */
-  Eigen::VectorXd self_fields_;
-
 public:
   /** Constructor from maximum quadrature weight.
    *
@@ -110,6 +66,8 @@ public:
    * @param[in] c center of the sphere.
    * @param[in] on_atom whether the sphere is centered on an atom.
    * Spheres not centered on atoms do not contribute to the molecular gradient.
+   *
+   * TODO convert it to density of points (G16 uses 5 points per Ang^2)
    */
   Sphere(double max_w, double r, const Eigen::Vector3d& c, bool on_atom = true);
 
@@ -154,18 +112,13 @@ public:
   auto size() const -> size_t { return N_; }
 
   /** Weight of EQ points. */
-  auto weight() const -> double { return w_0_ * std::pow(radius_, 2); }
+  auto weight() const -> double { return omega_ * std::pow(radius_, 2); }
 
   /** Weight of EQ points **on the unit sphere** */
-  auto omega() const -> double { return w_0_; }
+  auto omega() const -> double { return omega_; }
 
   /** EQ points. */
   auto points() const -> Eigen::Matrix3Xd { return points_; }
-
-  auto fs() const -> Eigen::VectorXd { return radius_ * self_potentials_; }
-  auto fs(size_t i) const -> double { return radius_ * self_potentials_(i); }
-  auto gs() const -> Eigen::VectorXd { return self_fields_; }
-  auto gs(size_t i) const -> double { return self_fields_(i); }
 
   auto is_atom_centered() const -> bool { return atom_centered_; }
 

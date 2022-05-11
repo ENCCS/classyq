@@ -93,6 +93,22 @@ TsLess::TsLess(const std::vector<Sphere>& ss, double threshold)
 }
 
 auto
+TsLess::volume() const -> double
+{
+  auto v = 0.0;
+
+  auto kstart = 0;
+  for (auto A = 0; A < spheres_.size(); ++A) {
+    auto R_A = spheres_[A].radius();
+
+    v += (R_A * weights_(Eigen::seqN(kstart, points_per_sphere_[A]))).sum();
+    kstart += points_per_sphere_[A];
+  }
+
+  return v / 3.0;
+}
+
+auto
 TsLess::str() const -> std::string
 {
   // FIXME add citation
@@ -109,6 +125,7 @@ TsLess::str() const -> std::string
   str += fmt::format("Number of spheres: {}, of which {} centered on atoms\n", spheres_.size(), spheres_on_atoms);
   // FIXME conversion factor
   str += fmt::format("Cavity surface area: {:.4f} Ang^2\n", area());
+  str += fmt::format("Cavity volume: {:.4f} Ang^3\n", volume());
   str += fmt::format("Number of grid points: {}\n", N_);
   // FIXME
   str += fmt::format("Number of irreducible grid points: {}\n", N_);

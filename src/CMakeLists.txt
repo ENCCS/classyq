@@ -40,7 +40,7 @@ target_include_directories(classyq-objs
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/ClassyQ>
   )
 
-foreach(_dir IN ITEMS cavity utils)
+foreach(_dir IN ITEMS cavity solver utils)
   add_subdirectory(${_dir})
 endforeach()
 

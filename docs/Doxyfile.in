@@ -261,7 +261,10 @@ TAB_SIZE               = 4
 # with the commands \{ and \} for these it is advised to use the version @{ and
 # @} or use a double escape (\\{ and \\})
 
-ALIASES                =
+# enables linking to rst targets inline in doxygen comments using \rstref{<target_name>}
+ALIASES  = rstref{1}="\verbatim embed:rst:inline :ref:`\1` \endverbatim"
+ALIASES += cite{1}="\verbatim embed:rst:inline :cite:`\1` \endverbatim"
+ALIASES += citet{1}="\verbatim embed:rst:inline :cite:t:`\1` \endverbatim"
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C sources
 # only. Doxygen will then generate output that is more tailored for C. For
@@ -1673,7 +1676,7 @@ MATHJAX_RELPATH        =
 # MATHJAX_EXTENSIONS = ams
 # This tag requires that the tag USE_MATHJAX is set to YES.
 
-MATHJAX_EXTENSIONS     = ams
+MATHJAX_EXTENSIONS     = ams physics
 
 # The MATHJAX_CODEFILE tag can be used to specify a file with javascript pieces
 # of code that will be used on startup of the MathJax code. See the MathJax site
@@ -1938,7 +1941,7 @@ LATEX_HIDE_INDICES     = NO
 # The default value is: plain.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
-LATEX_BIB_STYLE        = plain
+LATEX_BIB_STYLE        = alpha
 
 # If the LATEX_TIMESTAMP tag is set to YES then the footer of each generated
 # page will contain the date and time when the page was generated. Setting this

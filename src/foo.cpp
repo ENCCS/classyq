@@ -8,6 +8,7 @@
 
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
+#include <Eigen/LU>
 
 #include <fmt/ostream.h>
 #include <fmt/ranges.h>
@@ -16,6 +17,8 @@
 #include "cavity/LeopardiPartition.hpp"
 #include "cavity/Sphere.hpp"
 #include "cavity/TsLess.hpp"
+#include "solver/Solver.hpp"
+#include "solver/SolverImpl.hpp"
 #include "utils/FiniteDifference.hpp"
 
 using namespace classyq;
@@ -24,46 +27,6 @@ Eigen::VectorXd
 computeMEP(const Eigen::Matrix3Xd& grid, double charge, const Eigen::Vector3d& origin)
 {
   return (charge / (grid.colwise() - origin).colwise().norm().array()).colwise().sum();
-}
-
-Eigen::MatrixXd
-Smatrix(const TsLess& cavity)
-{
-  const auto sz = cavity.size();
-
-  Eigen::MatrixXd S = Eigen::MatrixXd::Zero(sz, sz);
-  //  S.diagonal() = cavity.fs().array() / cavity.weights().array();
-  for (auto i = 0; i < sz; ++i) {
-    auto p_i = cavity.points(i);
-    for (auto j = i + 1; j < sz; ++j) {
-      S(i, j) = S(j, i) = 1.0 / (p_i - cavity.points(j)).norm();
-    }
-  }
-
-  return S;
-}
-
-Eigen::MatrixXd
-Dmatrix(const TsLess& cavity)
-{
-  const auto sz = cavity.size();
-
-  Eigen::MatrixXd D = Eigen::MatrixXd::Zero(sz, sz);
-  //  D.diagonal() = cavity.gs().array() / cavity.weights().array();
-
-  for (auto i = 0; i < sz; ++i) {
-    auto p_i = cavity.points(i);
-    for (auto j = 0; j < sz; ++j) {
-      auto p_j = cavity.points(j);
-      auto n_j = cavity.normals(j);
-      if (i != j) {
-        auto dist = (p_i - p_j).norm();
-        D(i, j) = (p_i - p_j).dot(n_j) / std::pow(dist, 3);
-      }
-    }
-  }
-
-  return D;
 }
 
 using Stencil = std::map<int, std::vector<double>>;
@@ -132,59 +95,56 @@ main()
   auto max_w = 0.1;
   auto permittivity = 4.23;
 
-  Eigen::Vector3d c1(0.0, 0.0, 0.0);
-  auto r1 = 1.0;
+  Eigen::Vector3d c1{0.0, 0.0, 0.0};
+  auto r1 = 3.0;
   Sphere s1(max_w, r1, c1);
 
   auto d = 2.5;
 
-  Eigen::Vector3d c2(0.0, 0.0, d);
+  Eigen::Vector3d c2{0.0, 0.0, d};
   auto r2 = 1.5;
   Sphere s2(max_w, r2, c2);
 
   auto tsless = TsLess({ s1, s2 }, 1.0e-9);
   SPDLOG_INFO("tsless {}", tsless);
 
-  //  // compute S, we enforce Hermiticity
-  //  auto S = Smatrix(tsless);
-  //
-  //  // CPCM
-  //  // generate RHS vector: potential of a point charge at c1
-  //  auto charge = 8.0;
-  //  auto totalASC = -charge * (permittivity - 1) / (permittivity);
-  //  auto V = computeMEP(tsless.points(), charge, Eigen::Vector3d(0.0, 0.0, 0.8));
-  //  // solve for the charges
-  //  Eigen::VectorXd q = -(permittivity - 1.0) / (permittivity)*S.ldlt().solve(V);
-  //  // Gauss estimate
-  //  auto gauss = q.sum();
-  //  SPDLOG_INFO("<< CPCM >>\ntotalASC = {}; gauss = {}; Delta = {}", totalASC, gauss, totalASC - gauss);
-  //
-  //  // isotropic IEFPCM
-  //  auto D = Dmatrix(tsless);
-  //
-  //  auto sz = tsless.size();
-  //  auto factor = (permittivity + 1) / (permittivity - 1);
-  //  Eigen::MatrixXd Id = Eigen::MatrixXd::Identity(sz, sz);
-  //
-  //  Eigen::MatrixXd T = (2 * M_PI * factor * Id - D * tsless.weights().asDiagonal()) * S;
-  //  Eigen::MatrixXd R = (2 * M_PI * Id - D * tsless.weights().asDiagonal());
-  //  q = -T.inverse() * R * V;
-  //  gauss = q.sum();
-  //  SPDLOG_INFO("<< IEFPCM >>\ntotalASC = {}; gauss = {}; Delta = {}", totalASC, gauss, totalASC - gauss);
+  // compute S, we enforce Hermiticity
+  auto S = form_S(tsless);
 
-  finite_difference();
+  // CPCM
+  // generate RHS vector: potential of a point charge at c1
+  auto charge = 8.0;
+  auto totalASC = -charge * (permittivity - 1) / (permittivity);
+  auto V = computeMEP(tsless.points(), charge, Eigen::Vector3d{ 0.0, 0.0, 0.8 });
+  // solve for the charges
+  Eigen::VectorXd q = -(permittivity - 1.0) / (permittivity)*S.ldlt().solve(V);
+  // Gauss estimate
+  auto gauss = q.sum();
+  SPDLOG_INFO("<< CPCM >>\ntotalASC = {}; gauss = {}; Delta = {}", totalASC, gauss, totalASC - gauss);
 
-  auto density = 0.3;
-  auto gen = [density, c1](double z) {
-    Sphere s1(density, 1.5, c1);
-    Eigen::Vector3d c0(0.0, 0.0, z);
-    Sphere s0(density, 2.0, c0);
-    return TsLess({ s0, s1 }, 1.0e-9).weights();
-  };
+  // isotropic IEFPCM
+  auto R_epsilon = form_R_epsilon(tsless, permittivity);
+  auto R_infinity = form_R_infinity(tsless);
+  auto T = R_epsilon * S;
 
-  auto dwds0_z = utils::FiniteDifference<1, utils::FivePointStencil>::compute(gen);
+  // this is not using the polarization weights!
+  q = -T.lu().solve(R_infinity * V);
+  gauss = q.sum();
+  SPDLOG_INFO("<< IEFPCM >>\ntotalASC = {}; gauss = {}; Delta = {}", totalASC, gauss, totalASC - gauss);
 
-  SPDLOG_INFO("dwds0_z\n{}", dwds0_z);
+  //  finite_difference();
+  //
+  //  auto density = 0.3;
+  //  auto gen = [density, c1](double z) {
+  //    Sphere s1(density, 1.5, c1);
+  //    Eigen::Vector3d c0(0.0, 0.0, z);
+  //    Sphere s0(density, 2.0, c0);
+  //    return TsLess({ s0, s1 }, 1.0e-9).weights();
+  //  };
+  //
+  //  auto dwds0_z = utils::FiniteDifference<1, utils::FivePointStencil>::compute(gen);
+  //
+  //  SPDLOG_INFO("dwds0_z\n{}", dwds0_z);
 
   return EXIT_SUCCESS;
 }

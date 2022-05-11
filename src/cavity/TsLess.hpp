@@ -50,21 +50,54 @@ private:
 public:
   TsLess(const std::vector<Sphere>& ss, double threshold);
 
+  /** Return number of quadrature points. */
   auto size() const -> size_t { return N_; }
 
+  /** Return number of spheres. */
+  auto n_spheres() const -> size_t { return spheres_.size(); }
+  /** Return list of spheres. */
+  auto spheres() const -> std::vector<Sphere> { return spheres_; }
+
+  /** Return a sphere in list.
+   * @param[in] A index of sphere.
+   */
+  auto spheres(size_t A) const -> Sphere { return spheres_[A]; }
+
+  /** Return threshold for weight of point. */
   auto threshold() const -> double { return threshold_; }
 
+  /** Return vector of quadrature weights. */
   auto weights() const -> Eigen::VectorXd { return weights_; }
 
+  /** Return list with number of points in quadrature belonging to each sphere. */
+  auto points_per_sphere() const -> std::vector<size_t> { return points_per_sphere_; }
+
+  /** Return number of points in quadrature belonging to given sphere.
+   * @param[in] A index of sphere.
+   */
+  auto points_per_sphere(size_t A) const -> size_t { return points_per_sphere_[A]; }
+
+  /** Return quadrature points. */
   auto points() const -> Eigen::Matrix3Xd { return points_; }
 
+  /** Return given quadrature points.
+   * @param[in] i index of point.
+   */
   auto points(size_t i) const -> Eigen::Vector3d { return points_.col(i); }
 
+  /** Return normal vectors at quadrature points. */
   auto normals() const -> Eigen::Matrix3Xd { return normals_; }
 
+  /** Return given normal vector at quadrature points.
+   * @param[in] i index of point.
+   */
   auto normals(size_t i) const -> Eigen::Vector3d { return normals_.col(i); }
 
+  /** Return surface area of cavity. */
   auto area() const -> double { return weights_.sum(); }
+
+  /** Return surface area of cavity. */
+  auto volume() const -> double;
 
   /** String representation of object. */
   auto str() const -> std::string;
